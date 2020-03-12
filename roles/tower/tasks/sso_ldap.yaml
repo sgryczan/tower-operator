@@ -1,0 +1,138 @@
+---
+- name: configure ldap
+  uri:
+    method: PUT
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/settings/ldap/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+    body: "{{ lookup('template','ldap_config.json.j2') }}"
+  register: config_result
+  failed_when: config_result.status != 200
+#- name: get job templates
+#  uri:
+#    method: GET
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/job_templates/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: template_out
+#  failed_when: template_out.status != 200
+#- name: remove demo job template
+#  uri:
+#    method: DELETE
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/job_templates/{{ template_out.json.results[0].id }}/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: template_delete
+#  when: template_out.json.count == 1
+#  failed_when: template_delete.status != 204
+#
+#- name: get credentials
+#  uri:
+#    method: GET
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/credentials/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: credentials_out
+#  failed_when: credentials_out.status != 200
+#
+#- name: remove demo credential
+#  uri:
+#    method: DELETE
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/credentials/{{ credentials_out.json.results[0].id }}/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: credential_delete
+#  when: credentials_out.json.count == 1
+#  failed_when: credential_delete.status != 204
+#
+#- name: get projects
+#  uri:
+#    method: GET
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/projects/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: projects_out
+#  failed_when: projects_out.status != 200
+#
+#- name: remove demo project
+#  uri:
+#    method: DELETE
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/projects/{{ projects_out.json.results[0].id }}/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: project_delete
+#  when: projects_out.json.count == 1
+#  failed_when: project_delete.status != 204
+#
+#- name: get inventories
+#  uri:
+#    method: GET
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/inventories/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: inventories_out
+#  failed_when: inventories_out.status != 200
+#
+#- name: remove demo inventory
+#  uri:
+#    method: DELETE
+#    url: "http://{{ meta.name }}.{{ meta.namespace }}.svc.cluster.local/api/v2/inventories/{{ inventories_out.json.results[0].id }}/"
+#    user: "{{ tower_admin_user }}"
+#    password: "{{ tower_admin_password }}"
+#    force_basic_auth: yes
+#    validate_certs: no
+#    return_content: yes
+#    headers:
+#        Content-Type: "application/json"
+#    body_format: json
+#  register: inventory_delete
+#  when: inventories_out.json.count == 1
+#  failed_when: inventory_delete.status != 202

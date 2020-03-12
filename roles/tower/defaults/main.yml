@@ -32,3 +32,16 @@ tower_postgres_pass: awxpass
 tower_postgres_image: postgres:10
 tower_postgres_storage_request: 8Gi
 tower_postgres_storage_class: ''
+
+allow_anonymous_bind: true
+ldap_bind_username: changeme
+ldap_bind_password: changeme
+ldap_bind_ou: ""
+ldap_server_uri: ""
+ldap_user_search: ""
+ldap_group_search_dn: ""
+ldap_superuser_group: ""
+ldap_organizations:
+  Example:
+    admins: "Full DN"
+    remove_admins: true

@@ -1,0 +1,36 @@
+# Instance Group Service Account
+# https://docs.ansible.com/ansible-tower/3.6.3/html/userguide/credentials.html#openshift-or-kubernetes-api-bearer-token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: '{{ meta.name }}-pod-manager'
+  namespace: '{{ meta.namespace }}'
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: '{{ meta.name }}-pod-manager'
+  namespace: '{{ meta.namespace }}'
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: '{{ meta.name }}-pod-manager'
+  namespace: '{{ meta.namespace }}'
+subjects:
+- kind: ServiceAccount
+  name: '{{ meta.name }}-pod-manager'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: '{{ meta.name }}-pod-manager'

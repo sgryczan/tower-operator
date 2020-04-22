@@ -63,6 +63,18 @@ rules:
       - '*'
     verbs:
       - '*'
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings
+      - roles
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - patch
 
 ---
 kind: ClusterRoleBinding

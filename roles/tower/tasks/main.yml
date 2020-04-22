@@ -71,3 +71,4 @@
   when: migrate_result and migrate_result.changed
 
 - include_tasks: sso_ldap.yaml
+- include_tasks: instance_group.yaml

@@ -1,0 +1,99 @@
+- name: Ensure Instance Group ServiceAccount exists in the cluster.
+  k8s:
+    definition: "{{ lookup('template', item) | from_yaml_all | list }}"
+  register: k8s_instancegroup_result
+  with_items:
+    - tower_instancegroup_sa.yaml.j2
+
+- name: Get ServiceAccount Token name
+  shell: >-
+    kubectl get serviceaccount -n {{ meta.namespace }} {{ meta.name }}-pod-manager -o json
+  register: sa_detail_raw
+
+- set_fact:
+    sa_detail: "{{ sa_detail_raw.stdout }}"
+
+- name: Get SA Secret details
+  shell: >-
+    kubectl get secret -n {{ meta.namespace }} {{ sa_detail.secrets[0].name }} -o json
+  register: sa_secret_detail_raw
+
+- set_fact:
+    sa_secret_detail: "{{ sa_secret_detail_raw.stdout }}"
+- set_fact:
+    sa_token: "{{ sa_secret_detail.data.token | b64decode }}"
+- set_fact:
+    sa_cert: ""
+
+- name: Get Cluster Endpoint
+  shell: >-
+    echo "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
+  register: cluster_endpoint
+
+- name: Debug - Render template body
+  debug:
+    msg: "{{ lookup('template','tower_instancegroup_credentials.json.j2') | trim }}"
+
+- name: Get Credentials
+  uri:
+    method: GET
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/credentials/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+  register: credentials_out
+  failed_when: credentials_out.status != 200
+
+- name: Create Credentials Object
+  uri:
+    method: POST
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/credentials/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+    body: "{{ lookup('template','tower_instancegroup_credentials.json.j2') }}"
+  register: credentials_create_out
+  when: credentials_out.json.count == 1
+  failed_when: credentials_create_out.status != 201
+
+- name: Get Instance Groups
+  uri:
+    method: GET
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/instance_groups/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+  register: instancegroups_out
+  failed_when: instancegroups_out.status != 200
+
+- name: Create Instance Group
+  uri:
+    method: POST
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/instance_groups/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+    body: "{{ lookup('template','tower_instancegroup.json.j2') }}"
+  register: instancegroups_create_out
+  when: instancegroups_out.json.count == 1
+  failed_when: instancegroups_create_out.status != 201

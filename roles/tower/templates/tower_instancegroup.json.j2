@@ -1,5 +1,5 @@
 {
     "name": "default-cluster",
     "credential": 2,
-    "pod_spec_override": "apiVersion: v1\nkind: Pod\nmetadata:\n  namespace: {{ meta.namespace }}\nspec:\n  containers:\n    - image: ansible/ansible-runner\n      tty: true\n      stdin: true\n      imagePullPolicy: Always\n      args:\n        - sleep\n        - infinity\n"
+    "pod_spec_override": "apiVersion: v1\nkind: Pod\nmetadata:\n  namespace: {{ meta.namespace }}\nspec:\n  containers:\n    - image: {{ tower_container_group_image }}\n      tty: true\n      stdin: true\n      imagePullPolicy: Always\n      args:\n        - sleep\n        - infinity\n"
 }

@@ -17,6 +17,7 @@ tower_web_image: quay.io/ansible-tower/ansible-tower:3.6.3
 tower_create_preload_data: true
 
 tower_create_container_group: true
+tower_container_group_image: sgryczan/ansible-runner:0.0.0
 
 tower_task_replicas: "1"
 tower_hpa_enabled: true

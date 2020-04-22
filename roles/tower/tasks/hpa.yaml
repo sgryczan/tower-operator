@@ -1,0 +1,6 @@
+- name: Ensure HPA exists in the cluster.
+  k8s:
+    definition: "{{ lookup('template', item) | from_yaml_all | list }}"
+  register: k8s_hpa_result
+  with_items:
+    - tower_hpa.yaml.j2

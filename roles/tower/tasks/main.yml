@@ -70,5 +70,14 @@
     tower_task_replicas: "1"
   when: migrate_result and migrate_result.changed
 
-- include_tasks: sso_ldap.yaml
-- include_tasks: instance_group.yaml
+- name: Add LDAP Configuration
+  include_tasks: sso_ldap.yaml
+  when: ldap_enabled | bool
+
+- name: Create Instance Group
+  include_tasks: instance_group.yaml
+  when: tower_create_container_group | bool
+
+- name: Create HPA
+  include_tasks: hpa.yaml
+  when: tower_hpa_enabled | bool

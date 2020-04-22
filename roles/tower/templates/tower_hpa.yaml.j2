@@ -1,0 +1,14 @@
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: '{{ meta.name }}-tower-task'
+  namespace: '{{ meta.namespace }}'
+spec:
+  maxReplicas: {{ hpa_max_replicas | int }}
+  minReplicas: {{ hpa_min_replicas | int }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: '{{ meta.name }}-tower-task'
+  targetCPUUtilizationPercentage: {{ hpa_target_cpu_util_percent | int }}

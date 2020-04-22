@@ -8,7 +8,9 @@ metadata:
   labels:
     app: tower-task
 spec:
+{% if not tower_hpa_enabled %}
   replicas: {{ tower_task_replicas | int }}
+{% endif %}
   selector:
     matchLabels:
       app: tower-task

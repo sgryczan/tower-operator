@@ -16,7 +16,13 @@ tower_web_image: quay.io/ansible-tower/ansible-tower:3.6.3
 
 tower_create_preload_data: true
 
+tower_create_container_group: true
+
 tower_task_replicas: "1"
+tower_hpa_enabled: true
+hpa_min_replicas: 1
+hpa_max_replicas: 5
+hpa_target_cpu_util_percent: 80
 
 tower_task_mem_request: 1Gi
 tower_task_cpu_request: 500m
@@ -33,6 +39,7 @@ tower_postgres_image: postgres:10
 tower_postgres_storage_request: 8Gi
 tower_postgres_storage_class: ''
 
+ldap_enabled: true
 allow_anonymous_bind: true
 ldap_bind_username: changeme
 ldap_bind_password: changeme

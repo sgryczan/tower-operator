@@ -1,5 +1,5 @@
 build-operator:
-	operator-sdk build docker.io/sgryczan/tower-operator:0.0.3
+	operator-sdk build docker.io/sgryczan/tower-operator:0.0.4
 
 push-operator:
-	docker push docker.io/sgryczan/tower-operator:0.0.3
+	docker push docker.io/sgryczan/tower-operator:0.0.4

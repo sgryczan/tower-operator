@@ -75,6 +75,12 @@ rules:
       - create
       - delete
       - patch
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - '*'
 
 ---
 kind: ClusterRoleBinding

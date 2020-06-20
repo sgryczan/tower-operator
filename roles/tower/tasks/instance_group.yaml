@@ -30,6 +30,21 @@
     echo "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
   register: cluster_endpoint
 
+- name: Get all users
+  uri:
+    method: GET
+    url: "http://{{ meta.name }}-service.{{ meta.namespace }}.svc.cluster.local/api/v2/users/"
+    user: "{{ tower_admin_user }}"
+    password: "{{ tower_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+    body_format: json
+  register: get_users
+  failed_when: get_users.status != 200
+
 - name: Debug - Render template body
   debug:
     msg: "{{ lookup('template','tower_instancegroup_credentials.json.j2') | trim }}"

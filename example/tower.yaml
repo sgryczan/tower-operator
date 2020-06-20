@@ -1,0 +1,12 @@
+apiVersion: tower.ansible.com/v1beta1
+kind: Tower
+metadata:
+  name: tower
+  namespace: ansible-tower
+spec:
+  tower_hostname: tower.mycompany.com
+  tower_secret_key: aabbcc
+  
+  tower_admin_user: test
+  tower_admin_email: test@example.com
+  tower_admin_password: changeme

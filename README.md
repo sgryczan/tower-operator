@@ -32,7 +32,7 @@ Then you can create instances of Tower, for example:
 
      ```
      ---
-     apiVersion: tower.ansible.com/v1alpha1
+     apiVersion: tower.ansible.com/v1beta1
      kind: Tower
      metadata:
        name: tower
@@ -54,15 +54,56 @@ Then you can create instances of Tower, for example:
 
 After a few minutes, your new Tower instance will be accessible at `http://tower.mycompany.com/` (assuming your cluster has an Ingress controller configured). Log in using the `tower_admin_` credentials configured in the `spec`, and supply a valid license to begin using Tower.
 
+### Red Hat Registry Authentication
+
+To deploy Ansible Tower, images are pulled from the Red Hat Registry. Your Kubernetes or OpenShift cluster will have to have [Authentication Enabled for the Red Hat Registry](https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-configuring-red-hat-registry) for this to work, otherwise the Tower image will not be pulled.
+
+If you deploy Ansible AWX, images are available from public registries, so no authentication is required.
+
 ### Deploy AWX instead of Tower
 
-If you would like to deploy AWX (the open source upstream of Tower) into your cluster instead of Tower, override the default variables in the Tower `spec` for the `tower_task_image` and `tower_web_image`, so the AWX container images are used instead:
+If you would like to deploy AWX (the open source upstream of Tower) into your cluster instead of Tower, override the default variables in the Tower `spec` for the `tower_task_image` and `tower_web_image`, so the AWX container images are used instead, and set the `deployment_type` to ``awx`:
 
     ---
     spec:
       ...
-      tower_task_image: ansible/awx_task:9.2.0
-      tower_web_image: ansible/awx_web:9.2.0
+      deployment_type: awx
+      tower_task_image: ansible/awx_task:11.2.0
+      tower_web_image: ansible/awx_web:11.2.0
+
+### Ingress Types
+
+Depending on the cluster that you're running on, you may wish to use an `Ingress` to access your tower or you may wish to use a `Route` to access your tower. To toggle between these two options, you can add the following to your Tower custom resource:
+
+    ---
+    spec:
+      ...
+      tower_ingress_type: Route
+
+OR
+
+    ---
+    spec:
+      ...
+      tower_ingress_type: Ingress
+
+By default, no ingress/route is deployed as the default is set to `none`.
+
+### Privileged Tasks
+
+Depending on the type of tasks that you'll be running, you may find that you need the tower task pod to run as `privileged`. This can open yourself up to a variety of security concerns, so you should be aware (and verify that you have the privileges) to do this if necessary. In order to toggle this feature, you can add the following to your Tower custom resource:
+
+    ---
+    spec:
+      ...
+      tower_task_privileged: true
+
+If you are attempting to do this on an OpenShift cluster, you will need to grant the `tower` ServiceAccount the `privileged` SCC, which can be done with:
+
+    oc adm policy add-scc-to-user privileged -z tower
+
+Again, this is the most relaxed SCC that is provided by OpenShift, so be sure to familiarize yourself with the security concerns that accompany this action.
+
 
 ### Persistent storage for Postgres
 
@@ -97,7 +138,7 @@ This environment is meant for headless testing (e.g. in a CI environment, or whe
 
 #### Testing in Minikube
 
-    minikube start --memory 6g --cpus 4
+    minikube start --memory 8g --cpus 4
     minikube addons enable ingress
     molecule test -s test-minikube
 
@@ -106,7 +147,7 @@ This environment is meant for headless testing (e.g. in a CI environment, or whe
 Once the operator is deployed, you can visit the Tower UI in your browser by following these steps:
 
   1. Make sure you have an entry like `IP_ADDRESS  example-tower.test` in your `/etc/hosts` file. (Get the IP address with `minikube ip`.)
-  2. Visit `http://example-tower.test/` in your browser.
+  2. Visit `http://example-tower.test/` in your browser. (Default admin login is `test`/`changeme`.)
 
 ### Release Process
 
@@ -121,11 +162,11 @@ Each of these must be appropriately built in preparation for a new tag:
 
 Run the following command inside this directory:
 
-    operator-sdk build geerlingguy/tower-operator:0.2.5
+    operator-sdk build geerlingguy/tower-operator:0.4.0
 
 Then push the generated image to Docker Hub:
 
-    docker push geerlingguy/tower-operator:0.2.5
+    docker push geerlingguy/tower-operator:0.4.0
 
 #### Build a new version of the `tower-operator.yaml` file
 
@@ -144,7 +185,7 @@ After it is built, test it on a local cluster:
     minikube addons enable ingress
     kubectl apply -f deploy/tower-operator.yaml
     kubectl create namespace example-tower
-    kubectl apply -f deploy/crds/tower_v1alpha1_tower_cr_awx.yaml
+    kubectl apply -f deploy/crds/tower_v1beta1_tower_cr_awx.yaml
     <test everything>
     minikube delete
 

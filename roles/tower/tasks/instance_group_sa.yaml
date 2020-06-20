@@ -1,0 +1,6 @@
+- name: Ensure Instance Group ServiceAccount exists in the cluster.
+  k8s:
+    definition: "{{ lookup('template', item) | from_yaml_all | list }}"
+  register: k8s_instancegroup_result
+  with_items:
+    - tower_instancegroup_sa.yaml.j2

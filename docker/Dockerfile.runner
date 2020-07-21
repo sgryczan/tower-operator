@@ -1,0 +1,6 @@
+FROM ansible/ansible-runner
+
+RUN yum install -y \
+    sshpass \
+    ansible \
+    git
